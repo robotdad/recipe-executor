@@ -1,0 +1,32 @@
+{
+  "steps": [
+    {
+      "type": "read_file",
+      "path": "{{integration_spec_path}}",
+      "artifact": "integration_spec"
+    },
+    {
+      "type": "read_file",
+      "path": "{{subcomponents_manifest_path}}",
+      "artifact": "subcomponents_manifest"
+    },
+    {
+      "type": "read_file",
+      "path": "recipes/component_composition_generator/includes/COMPOSITION_BEST_PRACTICES.md",
+      "artifact": "composition_best_practices"
+    },
+    {
+      "type": "execute_recipe",
+      "recipe_path": "recipes/component_composition_generator/generate_composition.json",
+      "context_overrides": {
+        "model": "{{model|default:'azure:o3-mini'}}",
+        "output_root": "{{output_root|default:'output'}}",
+        "output_path": "{{output_path|default:'.'}}",
+        "language": "{{language|default:'javascript'}}",
+        "integration_spec": "{{integration_spec}}",
+        "subcomponents_manifest": "{{subcomponents_manifest}}",
+        "composition_best_practices": "{{composition_best_practices}}"
+      }
+    }
+  ]
+}

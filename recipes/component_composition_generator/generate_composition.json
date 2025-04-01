@@ -1,0 +1,30 @@
+{
+  "steps": [
+    {
+      "type": "read_file",
+      "path": "recipes/component_composition_generator/includes/COMPOSITION_BEST_PRACTICES.md",
+      "artifact": "composition_best_practices"
+    },
+    {
+      "type": "read_file",
+      "path": "{{integration_spec_path}}",
+      "artifact": "integration_spec"
+    },
+    {
+      "type": "read_file",
+      "path": "{{subcomponents_manifest_path}}",
+      "artifact": "subcomponents_manifest"
+    },
+    {
+      "type": "generate",
+      "prompt": "You are an expert developer creating integration code to compose multiple subcomponents into a cohesive component. Based on the provided specifications and subcomponent details, generate the necessary code to integrate them.\n\nIntegration Specification:\n{{integration_spec}}\n\nSubcomponents Manifest:\n{{subcomponents_manifest}}\n\n<COMPOSITION_BEST_PRACTICES>\n{{composition_best_practices}}\n</COMPOSITION_BEST_PRACTICES>\n\nCreate the necessary files to integrate these subcomponents following the best practices outlined above. Your generated code should include:\n\n1. Main component file that imports and composes the subcomponents\n2. Shared interfaces and types (for TypeScript)\n3. Integration logic between subcomponents\n4. Export structure (index files)\n5. Any necessary utility functions for communication between subcomponents\n\nGenerate code for the {{language|default:'javascript'}} language and follow the architectural patterns described in the integration specification.\n\nGenerate all necessary files in the output directory: {{output_path|default:'.'}}/\n",
+      "model": "{{model|default:'azure:o3-mini'}}",
+      "artifact": "integration_code"
+    },
+    {
+      "type": "write_file",
+      "artifact": "integration_code",
+      "root": "{{output_root|default:'output'}}"
+    }
+  ]
+}

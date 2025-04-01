@@ -1,0 +1,160 @@
+{
+  "component": "FormSystem",
+  "version": "1.0.0",
+  "language": "typescript",
+  "subcomponents": [
+    {
+      "name": "FormProvider",
+      "path": "src/components/FormProvider.tsx",
+      "description": "Context provider that manages form state",
+      "dependencies": [],
+      "exports": ["FormProvider", "FormContext", "useFormContext"],
+      "api": {
+        "props": {
+          "initialValues": "Record<string, any> | undefined",
+          "validationSchema": "ValidationSchema | undefined",
+          "onSubmit": "(values: Record<string, any>, helpers: FormHelpers) => Promise<void> | void",
+          "children": "React.ReactNode"
+        },
+        "context": {
+          "values": "Record<string, any>",
+          "errors": "Record<string, string>",
+          "touched": "Record<string, boolean>",
+          "isSubmitting": "boolean",
+          "isValid": "boolean",
+          "submitCount": "number",
+          "registerField": "(name: string, options: FieldOptions) => void",
+          "unregisterField": "(name: string) => void",
+          "handleChange": "(name: string, value: any) => void",
+          "handleBlur": "(name: string) => void",
+          "setFieldValue": "(name: string, value: any) => void",
+          "setFieldError": "(name: string, error: string) => void",
+          "validateField": "(name: string) => Promise<string | undefined>",
+          "validateForm": "() => Promise<Record<string, string>>",
+          "resetForm": "() => void",
+          "submitForm": "() => Promise<void>"
+        }
+      }
+    },
+    {
+      "name": "Field",
+      "path": "src/components/Field.tsx",
+      "description": "Base input field component supporting various input types",
+      "dependencies": ["FormProvider"],
+      "exports": ["Field", "useField"],
+      "api": {
+        "props": {
+          "name": "string",
+          "label": "string | undefined",
+          "type": "'text' | 'email' | 'password' | 'number' | 'checkbox' | 'radio' | 'select' | 'textarea' | undefined",
+          "placeholder": "string | undefined",
+          "validate": "(value: any, allValues: Record<string, any>) => string | undefined",
+          "required": "boolean | undefined",
+          "disabled": "boolean | undefined",
+          "children": "React.ReactNode | undefined",
+          "render": "(fieldProps: FieldRenderProps) => React.ReactNode | undefined"
+        },
+        "hooks": {
+          "useField": {
+            "params": {"name": "string"},
+            "returns": [
+              "{ value: any, onChange: (e: React.ChangeEvent) => void, onBlur: () => void, name: string, id: string }",
+              "{ error: string | undefined, touched: boolean }",
+              "{ setValue: (value: any) => void, setTouched: (touched: boolean) => void, setError: (error: string) => void }"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "ValidationEngine",
+      "path": "src/utils/validation.ts",
+      "description": "Utility for validating form values",
+      "dependencies": [],
+      "exports": ["validateField", "validateForm", "createValidationSchema"],
+      "api": {
+        "functions": {
+          "validateField": {
+            "params": {
+              "value": "any",
+              "validators": "Validator[]",
+              "values": "Record<string, any>"
+            },
+            "returns": "Promise<string | undefined>"
+          },
+          "validateForm": {
+            "params": {
+              "values": "Record<string, any>",
+              "schema": "ValidationSchema"
+            },
+            "returns": "Promise<Record<string, string>>"
+          },
+          "createValidationSchema": {
+            "params": {
+              "schema": "Record<string, Validator[]>"
+            },
+            "returns": "ValidationSchema"
+          }
+        },
+        "types": {
+          "Validator": "(value: any, values: Record<string, any>) => string | undefined | Promise<string | undefined>",
+          "ValidationSchema": "Record<string, Validator[]>"
+        }
+      }
+    },
+    {
+      "name": "FieldArray",
+      "path": "src/components/FieldArray.tsx",
+      "description": "Component for managing arrays of fields",
+      "dependencies": ["FormProvider"],
+      "exports": ["FieldArray", "useFieldArray"],
+      "api": {
+        "props": {
+          "name": "string",
+          "children": "(arrayHelpers: ArrayHelpers) => React.ReactNode"
+        },
+        "hooks": {
+          "useFieldArray": {
+            "params": {"name": "string"},
+            "returns": {
+              "values": "any[]",
+              "push": "(value: any) => void",
+              "remove": "(index: number) => void",
+              "insert": "(index: number, value: any) => void",
+              "move": "(fromIndex: number, toIndex: number) => void"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "ErrorDisplay",
+      "path": "src/components/ErrorDisplay.tsx",
+      "description": "Component for displaying field and form errors",
+      "dependencies": ["FormProvider"],
+      "exports": ["ErrorDisplay"],
+      "api": {
+        "props": {
+          "name": "string | undefined",
+          "className": "string | undefined",
+          "component": "React.ElementType | undefined"
+        }
+      }
+    },
+    {
+      "name": "SubmitButton",
+      "path": "src/components/SubmitButton.tsx",
+      "description": "Button component with loading state support",
+      "dependencies": ["FormProvider"],
+      "exports": ["SubmitButton"],
+      "api": {
+        "props": {
+          "children": "React.ReactNode",
+          "disabled": "boolean | undefined",
+          "className": "string | undefined",
+          "loadingText": "string | undefined"
+        }
+      }
+    }
+  ]
+}
