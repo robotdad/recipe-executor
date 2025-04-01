@@ -1,0 +1,31 @@
+{
+  "steps": [
+    {
+      "type": "read_file",
+      "path": "recipes/test_generation_generator/includes/TESTING_BEST_PRACTICES.md",
+      "artifact": "testing_best_practices"
+    },
+    {
+      "type": "read_file",
+      "path": "{{component_spec_path}}",
+      "artifact": "component_spec"
+    },
+    {
+      "type": "read_file",
+      "path": "{{component_code_path}}",
+      "artifact": "component_code",
+      "optional": true
+    },
+    {
+      "type": "generate",
+      "prompt": "You are an expert developer creating comprehensive tests for a software component. Based on the following component specification{% if component_code %} and code{% endif %}, generate appropriate tests for the {{language|default:'javascript'}} component.\n\nComponent Specification:\n{{component_spec}}\n\n{% if component_code %}<COMPONENT_CODE>\n{{component_code}}\n</COMPONENT_CODE>\n\n{% endif %}<TESTING_BEST_PRACTICES>\n{{testing_best_practices}}\n</TESTING_BEST_PRACTICES>\n\nGenerate tests using the {{testing_framework|default:'jest'}} testing framework for the {{language|default:'javascript'}} component. The tests should verify:\n\n1. Basic functionality and rendering\n2. All props and parameters are respected\n3. Component behavior matches specification\n4. Error states and edge cases are handled correctly\n5. Component interactions behave as expected\n\nCreate all necessary test files including configuration, mocks, and helpers as needed. Follow the best practices outlined in the TESTING_BEST_PRACTICES guide. Tests should be thorough yet maintainable.\n\nGenerate all appropriate test files in the output directory: {{output_path|default:'.'}}/\n",
+      "model": "{{model|default:'azure:o3-mini'}}",
+      "artifact": "generated_tests"
+    },
+    {
+      "type": "write_file",
+      "artifact": "generated_tests",
+      "root": "{{output_root|default:'output'}}"
+    }
+  ]
+}
