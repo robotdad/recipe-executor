@@ -36,6 +36,45 @@
         "usage_doc": "{{usage_doc}}",
         "additional_content": "<IMPLEMENTATION_PHILOSOPHY>\n{{implementation_philosophy}}\n</IMPLEMENTATION_PHILOSOPHY>\n<MODULAR_DESIGN_PHILOSOPHY>\n{{modular_design_philosophy}}\n</MODULAR_DESIGN_PHILOSOPHY>\n{% if related_docs %}<RELATED_DOCS>\n{{related_docs}}\n</RELATED_DOCS>{% endif %}"
       }
+    },
+    {
+      "type": "execute_recipe",
+      "recipe_path": "recipes/test_generator/setup_tests.json",
+      "context_overrides": {
+        "model": "{{model|default:'openai:o3-mini'}}",
+        "output_root": "{{output_root|default:'.'}}",
+        "component_spec_path": "{{project_recipe_path}}/specs/{{component_id}}.md",
+        "component_code_path": "{{output_root}}/{{target_project}}/{{component_id}}/{{component_id}}.{{extension|default:'py'}}",
+        "language": "{{language|default:'python'}}",
+        "testing_framework": "{{testing_framework|default:'pytest'}}",
+        "output_path": "{{target_project}}/{{component_id}}/__tests__"
+      },
+      "condition": "{{generate_tests|default:'false'}} == 'true'"
+    },
+    {
+      "type": "execute_recipe",
+      "recipe_path": "recipes/dependency_setup_generator/setup_dependencies.json",
+      "context_overrides": {
+        "model": "{{model|default:'openai:o3-mini'}}",
+        "output_root": "{{output_root|default:'.'}}",
+        "dependency_spec_path": "{{dependency_spec_path|default:''}}",
+        "language": "{{language|default:'python'}}",
+        "output_path": "{{target_project}}/{{component_id}}/config"
+      },
+      "condition": "{{setup_dependencies|default:'false'}} == 'true'"
+    },
+    {
+      "type": "execute_recipe",
+      "recipe_path": "recipes/library_integration_generator/integrate_library.json",
+      "context_overrides": {
+        "model": "{{model|default:'openai:o3-mini'}}",
+        "output_root": "{{output_root|default:'.'}}",
+        "library_integration_spec_path": "{{library_integration_spec_path|default:''}}",
+        "core_component_path": "{{output_root}}/{{target_project}}/{{component_id}}/{{component_id}}.{{extension|default:'py'}}",
+        "language": "{{language|default:'python'}}",
+        "output_path": "{{target_project}}/{{component_id}}/adapters/{{target_library|default:'default'}}"
+      },
+      "condition": "{{integrate_library|default:'false'}} == 'true'"
     }
   ]
 }
