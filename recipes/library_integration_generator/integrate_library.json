@@ -1,0 +1,33 @@
+{
+  "steps": [
+    {
+      "type": "read_file",
+      "path": "{{library_integration_spec_path}}",
+      "artifact": "library_integration_spec"
+    },
+    {
+      "type": "read_file",
+      "path": "{{core_component_path}}",
+      "artifact": "core_component",
+      "optional": true
+    },
+    {
+      "type": "read_file",
+      "path": "recipes/library_integration_generator/includes/LIBRARY_INTEGRATION_BEST_PRACTICES.md",
+      "artifact": "library_integration_best_practices"
+    },
+    {
+      "type": "execute_recipe",
+      "recipe_path": "recipes/library_integration_generator/generate_integration.json",
+      "context_overrides": {
+        "model": "{{model|default:'azure:o3-mini'}}",
+        "output_root": "{{output_root|default:'output'}}",
+        "output_path": "{{output_path|default:'.'}}",
+        "language": "{{language|default:'javascript'}}",
+        "library_integration_spec": "{{library_integration_spec}}",
+        "core_component": "{{core_component}}",
+        "library_integration_best_practices": "{{library_integration_best_practices}}"
+      }
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "steps": [
+    {
+      "type": "read_file",
+      "path": "recipes/library_integration_generator/includes/LIBRARY_INTEGRATION_BEST_PRACTICES.md",
+      "artifact": "library_integration_best_practices"
+    },
+    {
+      "type": "read_file",
+      "path": "{{library_integration_spec_path}}",
+      "artifact": "library_integration_spec"
+    },
+    {
+      "type": "read_file",
+      "path": "{{core_component_path}}",
+      "artifact": "core_component",
+      "optional": true
+    },
+    {
+      "type": "generate",
+      "prompt": "You are an expert developer creating adapter code to integrate a core component with a third-party library. Based on the provided integration specification and core component, generate the necessary integration code.\n\nLibrary Integration Specification:\n{{library_integration_spec}}\n\n{% if core_component %}<CORE_COMPONENT>\n{{core_component}}\n</CORE_COMPONENT>{% endif %}\n\n<LIBRARY_INTEGRATION_BEST_PRACTICES>\n{{library_integration_best_practices}}\n</LIBRARY_INTEGRATION_BEST_PRACTICES>\n\nCreate the necessary files to integrate the core component with the specified library following the best practices outlined above. Your generated code should include:\n\n1. Adapter components that wrap the core functionality\n2. Library initialization and configuration code\n3. Custom hooks and utilities for library integration\n4. Type definitions for library integration\n5. Example usage demonstrating the integration\n\nGenerate code for the {{language|default:'javascript'}} language and focus on creating a clean, maintainable integration that follows the principles of separation of concerns.\n\nGenerate all necessary files in the output directory: {{output_path|default:'.'}}/\n",
+      "model": "{{model|default:'azure:o3-mini'}}",
+      "artifact": "integration_code"
+    },
+    {
+      "type": "write_file",
+      "artifact": "integration_code",
+      "root": "{{output_root|default:'output'}}"
+    }
+  ]
+}
