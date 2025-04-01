@@ -52,7 +52,7 @@ class ReadFileStep(BaseStep[ReadFileConfig]):
         # Check file existence
         if not os.path.exists(rendered_path):
             if self.config.optional:
-                self.logger.warning(f"Optional file not found at path: {rendered_path}, continuing with empty content")
+                self.logger.info(f"Optional file not found at path: {rendered_path}. This file will be generated.")
                 context[self.config.artifact] = ""
                 return
             else:
