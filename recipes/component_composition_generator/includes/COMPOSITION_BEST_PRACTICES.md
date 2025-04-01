@@ -457,8 +457,312 @@ const BadUserDashboard = ({ userId }) => {
 };
 ```
 
+## Python-Specific Composition Patterns
+
+### 1. Module and Package Structure
+
+#### Python Package Organization
+
+- Organize related modules into packages with `__init__.py` files
+- Use the `__init__.py` file to control what is exposed from the package
+- Consider namespace packages for large component collections
+- Follow consistent naming conventions (snake_case for modules and packages)
+
+```
+my_component/
+  ├── __init__.py          # Exposes the public API
+  ├── core.py              # Core functionality
+  ├── exceptions.py        # Custom exceptions
+  ├── utils/               # Utility subpackage
+  │   ├── __init__.py
+  │   ├── formatters.py
+  │   └── validators.py
+  └── integrations/        # External integrations
+      ├── __init__.py
+      ├── database.py
+      └── api.py
+```
+
+#### Well-Designed `__init__.py` Files
+
+Control your component's public API through your `__init__.py` files:
+
+```python
+# __init__.py example for clean API exposure
+from .core import MyComponent, configure_component
+from .exceptions import ComponentError, ValidationError
+
+__all__ = ['MyComponent', 'configure_component', 'ComponentError', 'ValidationError']
+
+# Version information
+__version__ = '1.0.0'
+```
+
+### 2. Composition Approaches
+
+#### Class Composition and Inheritance
+
+- Favor composition over inheritance where possible
+- Use inheritance for genuine "is-a" relationships
+- Create clear class hierarchies with single responsibility
+- Use mixins for cross-cutting concerns
+
+```python
+# Good composition example
+class DatabaseConnection:
+    def __init__(self, config):
+        self.config = config
+        
+    def connect(self):
+        # Connection logic
+        pass
+        
+class QueryBuilder:
+    def __init__(self):
+        self.query = ""
+        
+    def select(self, fields):
+        # Build SELECT query
+        return self
+        
+    def where(self, condition):
+        # Add WHERE clause
+        return self
+        
+class DatabaseClient:
+    def __init__(self, config):
+        self.connection = DatabaseConnection(config)
+        self.query_builder = QueryBuilder()
+        
+    def execute_query(self, query):
+        conn = self.connection.connect()
+        # Execute query logic
+        return results
+        
+    def query(self):
+        # Return query builder for fluent interface
+        return self.query_builder
+```
+
+#### Dependency Injection
+
+- Pass dependencies to classes rather than creating them internally
+- Use constructor injection for required dependencies
+- Consider factories for complex object creation
+- Use dependency containers for larger applications
+
+```python
+# Good dependency injection
+class UserService:
+    def __init__(self, db_client, logger, cache_manager=None):
+        self.db_client = db_client
+        self.logger = logger
+        self.cache_manager = cache_manager
+        
+    def get_user(self, user_id):
+        # Implementation using injected dependencies
+        pass
+```
+
+### 3. Interface Definition
+
+#### Abstract Base Classes
+
+- Use ABC module for defining interfaces
+- Create abstract base classes for component contracts
+- Define clear method signatures
+- Document expected behavior
+
+```python
+from abc import ABC, abstractmethod
+
+class AuthProvider(ABC):
+    @abstractmethod
+    def authenticate(self, username: str, password: str) -> bool:
+        """Authenticate a user with username and password."""
+        pass
+        
+    @abstractmethod
+    def get_user_info(self, user_id: str) -> dict:
+        """Retrieve user information."""
+        pass
+        
+# Implementations
+class LocalAuthProvider(AuthProvider):
+    def authenticate(self, username: str, password: str) -> bool:
+        # Local authentication implementation
+        pass
+        
+    def get_user_info(self, user_id: str) -> dict:
+        # Local user info implementation
+        pass
+```
+
+#### Protocol Classes (Python 3.8+)
+
+- Use Protocol classes for structural typing
+- Better for duck typing and looser coupling
+- Great for defining expected behavior without inheritance
+
+```python
+from typing import Protocol
+
+class DataSource(Protocol):
+    def get_data(self, query: str) -> list:
+        """Return data matching the query."""
+        ...
+        
+# Any class with a compatible get_data method works
+class DatabaseSource:
+    def get_data(self, query: str) -> list:
+        # Database implementation
+        return db_results
+        
+class APISource:
+    def get_data(self, query: str) -> list:
+        # API implementation
+        return api_results
+        
+def process_data(source: DataSource, query: str) -> list:
+    # Works with any source implementing the protocol
+    return source.get_data(query)
+```
+
+### 4. Event-Based Communication
+
+#### Observer Pattern
+
+- Use for loose coupling between components
+- Implement with callback registries or event classes
+- Consider using Python's built-in `collections.defaultdict` for event handlers
+- Document event contract clearly
+
+```python
+# Event system implementation
+class EventEmitter:
+    def __init__(self):
+        self.handlers = defaultdict(list)
+        
+    def on(self, event_name, handler):
+        self.handlers[event_name].append(handler)
+        return self
+        
+    def off(self, event_name, handler):
+        if handler in self.handlers[event_name]:
+            self.handlers[event_name].remove(handler)
+        return self
+        
+    def emit(self, event_name, *args, **kwargs):
+        for handler in self.handlers[event_name]:
+            handler(*args, **kwargs)
+        return self
+```
+
+#### Signal/Slot System
+
+- Consider a signal/slot system for more complex applications
+- Implement with descriptor protocol or decorators
+- Document signal interfaces clearly
+- Consider existing libraries like PySignal or Blinker
+
+```python
+# Simple signal implementation
+class Signal:
+    def __init__(self):
+        self.receivers = []
+        
+    def connect(self, receiver):
+        self.receivers.append(receiver)
+        
+    def disconnect(self, receiver):
+        if receiver in self.receivers:
+            self.receivers.remove(receiver)
+            
+    def emit(self, *args, **kwargs):
+        for receiver in self.receivers:
+            receiver(*args, **kwargs)
+            
+# Usage
+class DataManager:
+    data_changed = Signal()
+    
+    def update_data(self, new_data):
+        # Update logic
+        self.data_changed.emit(new_data)
+```
+
+### 5. Context Managers for Resource Management
+
+- Use context managers for component setup/teardown
+- Implement `__enter__` and `__exit__` methods
+- Handle exceptions appropriately
+- Document the expected lifecycle
+
+```python
+class DatabaseSession:
+    def __init__(self, connection_string):
+        self.connection_string = connection_string
+        self.connection = None
+        
+    def __enter__(self):
+        self.connection = create_connection(self.connection_string)
+        return self
+        
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.connection:
+            self.connection.close()
+            
+    def execute(self, query):
+        # Execution logic
+        pass
+        
+# Usage
+with DatabaseSession("connection_string") as session:
+    results = session.execute("SELECT * FROM users")
+```
+
+### 6. Factories and Builders
+
+- Use factories for complex object creation
+- Implement builders for step-by-step construction
+- Consider factory functions for simple cases
+- Use class methods as alternative constructors
+
+```python
+# Factory function
+def create_auth_provider(provider_type, config):
+    if provider_type == "local":
+        return LocalAuthProvider(config)
+    elif provider_type == "oauth":
+        return OAuthProvider(config)
+    elif provider_type == "ldap":
+        return LDAPProvider(config)
+    else:
+        raise ValueError(f"Unknown provider type: {provider_type}")
+        
+# Builder pattern
+class QueryBuilder:
+    def __init__(self):
+        self.query_parts = []
+        
+    def select(self, fields):
+        self.query_parts.append(f"SELECT {', '.join(fields)}")
+        return self
+        
+    def from_table(self, table):
+        self.query_parts.append(f"FROM {table}")
+        return self
+        
+    def where(self, condition):
+        self.query_parts.append(f"WHERE {condition}")
+        return self
+        
+    def build(self):
+        return " ".join(self.query_parts)
+```
+
 ## Conclusion
 
-Component composition is a powerful pattern for building complex UIs from simpler parts. By following these best practices, you can create maintainable, testable, and flexible component structures that scale with your application's needs.
+Component composition is a powerful pattern in both front-end and back-end development. By following these best practices, you can create maintainable, testable, and flexible component structures that scale with your application's needs.
 
-Remember that good composition starts with good component design - each component should have a clear purpose and interface. With thoughtful composition, your component library can become a powerful toolkit for building consistent, high-quality user interfaces.
+Remember that good composition starts with good component design - each component should have a clear purpose and interface. With thoughtful composition, your component library can become a powerful toolkit for building consistent, high-quality applications, whether in JavaScript/TypeScript UI components or Python modules and services.

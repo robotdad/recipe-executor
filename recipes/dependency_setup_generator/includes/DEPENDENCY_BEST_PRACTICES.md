@@ -117,10 +117,34 @@ This document outlines best practices for managing dependencies in software proj
 
 ### Python Projects
 
-- Use virtual environments for isolation
-- Specify dependencies in requirements.txt or pyproject.toml
-- Consider development vs. production requirements
-- Use dependency groups for optional features
+#### Modern Python Dependency Management
+
+- Use `pyproject.toml` as the primary configuration file (PEP 621)
+- Prefer uv for dependency management and virtual environments
+  - Fast installation and resolution
+  - Compatible with pip and existing workflows
+  - Consistent lockfile generation (uv.lock)
+- Define appropriate dependency groups:
+  - Required runtime dependencies
+  - Development dependencies (testing, linting)
+  - Optional feature dependencies
+- Use `requirements.txt` only for simpler projects or compatibility
+
+#### Python Version Management
+
+- Specify Python version requirements explicitly
+- Use appropriate version specifiers:
+  - `>=3.9,<3.12` for compatible version ranges
+  - `~=3.10.0` for minor version compatibility
+  - `==3.11.5` for exact version requirements
+- Consider maintaining compatibility with multiple Python versions
+
+#### Configuration Files
+
+- **pyproject.toml**: Package metadata, build system, dependencies
+- **ruff.toml**: Modern Python linting configuration (replaces flake8, isort)
+- **mypy.ini** or **pyproject.toml [tool.mypy]**: Type checking configuration
+- **pytest.ini** or **pyproject.toml [tool.pytest]**: Test configuration
 
 ### Java/Kotlin Projects
 

@@ -570,6 +570,166 @@ describe('ThirdPartyAdapter', () => {
 - Wrap library components with your own components
 - Handle cleanup in useEffect return functions
 
+### Python Libraries
+
+#### Python General Integration Patterns
+
+- Create abstract base classes or protocols for integration points
+- Use dependency injection for providing library implementations
+- Implement factory functions or classes for creating library instances
+- Use appropriate context managers for resource management
+
+```python
+# Abstract interface for integration
+from abc import ABC, abstractmethod
+
+class StorageBackend(ABC):
+    @abstractmethod
+    def store(self, key: str, data: Any) -> bool:
+        """Store data by key."""
+        pass
+        
+    @abstractmethod
+    def retrieve(self, key: str) -> Any:
+        """Retrieve data by key."""
+        pass
+        
+# Library-specific implementation
+class RedisBackend(StorageBackend):
+    def __init__(self, redis_client):
+        self.client = redis_client
+        
+    def store(self, key: str, data: Any) -> bool:
+        serialized = json.dumps(data)
+        return self.client.set(key, serialized)
+        
+    def retrieve(self, key: str) -> Any:
+        serialized = self.client.get(key)
+        if serialized:
+            return json.loads(serialized)
+        return None
+```
+
+#### ORM and Database Libraries
+
+- Isolate database models from business logic
+- Create repository classes to encapsulate ORM operations
+- Use connection pooling and manage connections properly
+- Implement proper transaction handling
+
+```python
+# Repository pattern for database access
+class UserRepository:
+    def __init__(self, db_session):
+        self.session = db_session
+        
+    def get_by_id(self, user_id: int) -> Optional[User]:
+        return self.session.query(User).filter(User.id == user_id).first()
+        
+    def create(self, user_data: dict) -> User:
+        user = User(**user_data)
+        self.session.add(user)
+        self.session.commit()
+        return user
+        
+    def update(self, user_id: int, user_data: dict) -> Optional[User]:
+        user = self.get_by_id(user_id)
+        if not user:
+            return None
+            
+        for key, value in user_data.items():
+            setattr(user, key, value)
+            
+        self.session.commit()
+        return user
+```
+
+#### HTTP and API Client Libraries
+
+- Create service classes for API interactions
+- Implement consistent error handling and retry logic
+- Centralize request/response transformation
+- Handle authentication and session management
+
+```python
+# API client that abstracts away requests library
+class ApiClient:
+    def __init__(self, base_url, auth_token=None):
+        self.base_url = base_url
+        self.session = requests.Session()
+        if auth_token:
+            self.session.headers.update({"Authorization": f"Bearer {auth_token}"})
+        
+    def get(self, endpoint, params=None):
+        try:
+            response = self.session.get(f"{self.base_url}/{endpoint}", params=params)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            raise ApiError(f"GET request failed: {str(e)}")
+            
+    def post(self, endpoint, data):
+        try:
+            response = self.session.post(f"{self.base_url}/{endpoint}", json=data)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            raise ApiError(f"POST request failed: {str(e)}")
+```
+
+#### Async Libraries
+
+- Create asynchronous facades for sync libraries when needed
+- Properly manage async resources with context managers
+- Use consistent patterns for async code
+- Consider backpressure and error handling
+
+```python
+# Async wrapper for a synchronous library
+class AsyncCache:
+    def __init__(self, sync_cache):
+        self.cache = sync_cache
+        
+    async def get(self, key: str) -> Any:
+        return await asyncio.to_thread(self.cache.get, key)
+        
+    async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> bool:
+        if ttl:
+            return await asyncio.to_thread(self.cache.set, key, value, ttl)
+        return await asyncio.to_thread(self.cache.set, key, value)
+```
+
+#### Configuration and Settings Libraries
+
+- Create a unified configuration interface
+- Support multiple configuration sources
+- Implement validation for configuration values
+- Provide sensible defaults
+
+```python
+# Configuration management with Pydantic
+from pydantic import BaseSettings, Field
+
+class DatabaseSettings(BaseSettings):
+    host: str = Field(default="localhost")
+    port: int = Field(default=5432)
+    username: str
+    password: str
+    database: str
+    pool_size: int = Field(default=5)
+    
+    class Config:
+        env_prefix = "DB_"
+        
+class AppSettings(BaseSettings):
+    debug: bool = Field(default=False)
+    log_level: str = Field(default="INFO")
+    database: DatabaseSettings = Field(default_factory=DatabaseSettings)
+    
+    class Config:
+        env_nested_delimiter = "__"
+```
+
 ### Data Fetching Libraries
 
 - Centralize API endpoint definitions

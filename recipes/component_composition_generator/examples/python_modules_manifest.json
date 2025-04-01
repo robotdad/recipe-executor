@@ -1,0 +1,432 @@
+{
+  "name": "DataPipeline",
+  "description": "Integrated data processing pipeline system",
+  "language": "python",
+  "version": "1.0.0",
+  "subcomponents": [
+    {
+      "name": "DataCollector",
+      "path": "data_pipeline/collectors/base.py",
+      "description": "Base component for retrieving data from various sources",
+      "dependencies": [],
+      "interface": {
+        "methods": [
+          {
+            "name": "collect",
+            "parameters": [
+              {
+                "name": "source_id",
+                "type": "str",
+                "description": "Identifier for the data source"
+              },
+              {
+                "name": "options",
+                "type": "Optional[Dict]",
+                "description": "Optional collection parameters"
+              }
+            ],
+            "returns": {
+              "type": "CollectionResult",
+              "description": "Result containing collected data and metadata"
+            }
+          }
+        ],
+        "classes": [
+          {
+            "name": "CollectionResult",
+            "properties": [
+              {
+                "name": "data",
+                "type": "Any",
+                "description": "Collected raw data"
+              },
+              {
+                "name": "metadata",
+                "type": "Dict",
+                "description": "Metadata about the collection process"
+              },
+              {
+                "name": "success",
+                "type": "bool",
+                "description": "Whether collection was successful"
+              },
+              {
+                "name": "error",
+                "type": "Optional[str]",
+                "description": "Error message if collection failed"
+              }
+            ]
+          }
+        ]
+      },
+      "implementations": [
+        {
+          "name": "RestApiCollector",
+          "path": "data_pipeline/collectors/rest_api.py",
+          "description": "Collector for REST API data sources"
+        },
+        {
+          "name": "DatabaseCollector",
+          "path": "data_pipeline/collectors/database.py",
+          "description": "Collector for database data sources"
+        },
+        {
+          "name": "FileSystemCollector",
+          "path": "data_pipeline/collectors/file_system.py",
+          "description": "Collector for file system data sources"
+        }
+      ]
+    },
+    {
+      "name": "DataTransformer",
+      "path": "data_pipeline/transformers/base.py",
+      "description": "Base component for normalizing and transforming data",
+      "dependencies": [],
+      "interface": {
+        "methods": [
+          {
+            "name": "transform",
+            "parameters": [
+              {
+                "name": "data",
+                "type": "Any",
+                "description": "Raw data to transform"
+              },
+              {
+                "name": "options",
+                "type": "Optional[Dict]",
+                "description": "Optional transformation parameters"
+              }
+            ],
+            "returns": {
+              "type": "TransformationResult",
+              "description": "Result containing transformed data"
+            }
+          }
+        ],
+        "classes": [
+          {
+            "name": "TransformationResult",
+            "properties": [
+              {
+                "name": "data",
+                "type": "Any",
+                "description": "Transformed data"
+              },
+              {
+                "name": "success",
+                "type": "bool",
+                "description": "Whether transformation was successful"
+              },
+              {
+                "name": "error",
+                "type": "Optional[str]",
+                "description": "Error message if transformation failed"
+              }
+            ]
+          }
+        ]
+      },
+      "implementations": [
+        {
+          "name": "JsonTransformer",
+          "path": "data_pipeline/transformers/json_transformer.py",
+          "description": "Transformer for JSON data"
+        },
+        {
+          "name": "CsvTransformer",
+          "path": "data_pipeline/transformers/csv_transformer.py",
+          "description": "Transformer for CSV data"
+        }
+      ]
+    },
+    {
+      "name": "DataValidator",
+      "path": "data_pipeline/validators/base.py",
+      "description": "Base component for validating data against schemas and business rules",
+      "dependencies": [],
+      "interface": {
+        "methods": [
+          {
+            "name": "validate",
+            "parameters": [
+              {
+                "name": "data",
+                "type": "Any",
+                "description": "Data to validate"
+              },
+              {
+                "name": "options",
+                "type": "Optional[Dict]",
+                "description": "Optional validation parameters"
+              }
+            ],
+            "returns": {
+              "type": "ValidationResult",
+              "description": "Result containing validation results"
+            }
+          }
+        ],
+        "classes": [
+          {
+            "name": "ValidationResult",
+            "properties": [
+              {
+                "name": "data",
+                "type": "Any",
+                "description": "Validated data"
+              },
+              {
+                "name": "is_valid",
+                "type": "bool",
+                "description": "Whether data is valid"
+              },
+              {
+                "name": "errors",
+                "type": "List[ValidationError]",
+                "description": "List of validation errors"
+              }
+            ]
+          }
+        ]
+      },
+      "implementations": [
+        {
+          "name": "SchemaValidator",
+          "path": "data_pipeline/validators/schema_validator.py",
+          "description": "Validator using JSON Schema"
+        },
+        {
+          "name": "PydanticValidator",
+          "path": "data_pipeline/validators/pydantic_validator.py",
+          "description": "Validator using Pydantic models"
+        }
+      ]
+    },
+    {
+      "name": "DataStorage",
+      "path": "data_pipeline/storage/base.py",
+      "description": "Base component for persisting processed data",
+      "dependencies": [],
+      "interface": {
+        "methods": [
+          {
+            "name": "store",
+            "parameters": [
+              {
+                "name": "data",
+                "type": "Any",
+                "description": "Data to store"
+              },
+              {
+                "name": "options",
+                "type": "Optional[Dict]",
+                "description": "Optional storage parameters"
+              }
+            ],
+            "returns": {
+              "type": "StorageResult",
+              "description": "Result of the storage operation"
+            }
+          }
+        ],
+        "classes": [
+          {
+            "name": "StorageResult",
+            "properties": [
+              {
+                "name": "success",
+                "type": "bool",
+                "description": "Whether storage was successful"
+              },
+              {
+                "name": "identifier",
+                "type": "Optional[str]",
+                "description": "Identifier for the stored data"
+              },
+              {
+                "name": "error",
+                "type": "Optional[str]",
+                "description": "Error message if storage failed"
+              }
+            ]
+          }
+        ]
+      },
+      "implementations": [
+        {
+          "name": "PostgresStorage",
+          "path": "data_pipeline/storage/postgres_storage.py",
+          "description": "Storage using PostgreSQL database"
+        },
+        {
+          "name": "FileStorage",
+          "path": "data_pipeline/storage/file_storage.py",
+          "description": "Storage using the filesystem"
+        }
+      ]
+    }
+  ],
+  "integration": {
+    "main_file": "data_pipeline/pipeline.py",
+    "interfaces": [
+      {
+        "name": "DataPipeline",
+        "description": "Main pipeline class that integrates all components",
+        "methods": [
+          {
+            "name": "__init__",
+            "parameters": [
+              {
+                "name": "config",
+                "type": "Union[Dict, Config]",
+                "description": "Pipeline configuration"
+              }
+            ]
+          },
+          {
+            "name": "process",
+            "parameters": [
+              {
+                "name": "source_id",
+                "type": "str",
+                "description": "Identifier for the data source"
+              },
+              {
+                "name": "options",
+                "type": "Optional[Dict]",
+                "description": "Optional processing parameters"
+              }
+            ],
+            "returns": {
+              "type": "PipelineResult",
+              "description": "Result of the pipeline execution"
+            }
+          },
+          {
+            "name": "collect_only",
+            "parameters": [
+              {
+                "name": "source_id",
+                "type": "str",
+                "description": "Identifier for the data source"
+              },
+              {
+                "name": "options",
+                "type": "Optional[Dict]",
+                "description": "Optional collection parameters"
+              }
+            ],
+            "returns": {
+              "type": "CollectionResult",
+              "description": "Result of the collection operation"
+            }
+          },
+          {
+            "name": "transform_only",
+            "parameters": [
+              {
+                "name": "data",
+                "type": "Any",
+                "description": "Data to transform"
+              },
+              {
+                "name": "options",
+                "type": "Optional[Dict]",
+                "description": "Optional transformation parameters"
+              }
+            ],
+            "returns": {
+              "type": "TransformationResult",
+              "description": "Result of the transformation operation"
+            }
+          },
+          {
+            "name": "validate_only",
+            "parameters": [
+              {
+                "name": "data",
+                "type": "Any",
+                "description": "Data to validate"
+              },
+              {
+                "name": "options",
+                "type": "Optional[Dict]",
+                "description": "Optional validation parameters"
+              }
+            ],
+            "returns": {
+              "type": "ValidationResult",
+              "description": "Result of the validation operation"
+            }
+          },
+          {
+            "name": "store_only",
+            "parameters": [
+              {
+                "name": "data",
+                "type": "Any",
+                "description": "Data to store"
+              },
+              {
+                "name": "options",
+                "type": "Optional[Dict]",
+                "description": "Optional storage parameters"
+              }
+            ],
+            "returns": {
+              "type": "StorageResult",
+              "description": "Result of the storage operation"
+            }
+          }
+        ]
+      },
+      {
+        "name": "PipelineResult",
+        "description": "Result of a complete pipeline execution",
+        "properties": [
+          {
+            "name": "success",
+            "type": "bool",
+            "description": "Whether the pipeline execution was successful"
+          },
+          {
+            "name": "data",
+            "type": "Any",
+            "description": "The processed data if successful"
+          },
+          {
+            "name": "error",
+            "type": "Optional[str]",
+            "description": "Error message if pipeline failed"
+          },
+          {
+            "name": "failed_stage",
+            "type": "Optional[str]",
+            "description": "Name of the stage where failure occurred"
+          },
+          {
+            "name": "collection_result",
+            "type": "Optional[CollectionResult]",
+            "description": "Result of the collection stage"
+          },
+          {
+            "name": "transformation_result",
+            "type": "Optional[TransformationResult]",
+            "description": "Result of the transformation stage"
+          },
+          {
+            "name": "validation_result",
+            "type": "Optional[ValidationResult]",
+            "description": "Result of the validation stage"
+          },
+          {
+            "name": "storage_result",
+            "type": "Optional[StorageResult]",
+            "description": "Result of the storage stage"
+          }
+        ]
+      }
+    ]
+  }
+}
