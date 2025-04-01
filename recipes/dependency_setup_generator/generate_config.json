@@ -1,0 +1,25 @@
+{
+  "steps": [
+    {
+      "type": "read_file",
+      "path": "recipes/dependency_setup_generator/includes/DEPENDENCY_BEST_PRACTICES.md",
+      "artifact": "dependency_best_practices"
+    },
+    {
+      "type": "read_file",
+      "path": "{{dependency_spec_path}}",
+      "artifact": "dependency_spec"
+    },
+    {
+      "type": "generate",
+      "prompt": "You are an expert developer. Based on the following dependency specification, generate configuration files for a {{language|default:'javascript'}} project.\n\nDependency Specification:\n{{dependency_spec}}\n\nGenerate the necessary configuration files for this project, including package.json, and any language-specific configuration files (e.g., tsconfig.json for TypeScript, vite.config.js for Vite, etc.).\n\nEnsure you follow these best practices for dependency management:\n<DEPENDENCY_BEST_PRACTICES>\n{{dependency_best_practices}}\n</DEPENDENCY_BEST_PRACTICES>\n\nGenerate all appropriate configuration files in the output directory: {{output_path|default:'.'}}/\n",
+      "model": "{{model|default:'azure:o3-mini'}}",
+      "artifact": "generated_config"
+    },
+    {
+      "type": "write_file",
+      "artifact": "generated_config",
+      "root": "{{output_root|default:'output'}}"
+    }
+  ]
+}

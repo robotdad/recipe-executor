@@ -1,0 +1,26 @@
+{
+  "steps": [
+    {
+      "type": "read_file",
+      "path": "{{dependency_spec_path}}",
+      "artifact": "dependency_spec"
+    },
+    {
+      "type": "read_file",
+      "path": "recipes/dependency_setup_generator/includes/DEPENDENCY_BEST_PRACTICES.md",
+      "artifact": "dependency_best_practices"
+    },
+    {
+      "type": "execute_recipe",
+      "recipe_path": "recipes/dependency_setup_generator/generate_config.json",
+      "context_overrides": {
+        "model": "{{model|default:'azure:o3-mini'}}",
+        "output_root": "{{output_root|default:'output'}}",
+        "output_path": "{{output_path|default:'.'}}",
+        "language": "{{language|default:'javascript'}}",
+        "dependency_spec": "{{dependency_spec}}",
+        "dependency_best_practices": "{{dependency_best_practices}}"
+      }
+    }
+  ]
+}
