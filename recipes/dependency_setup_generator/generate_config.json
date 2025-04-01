@@ -8,11 +8,12 @@
     {
       "type": "read_file",
       "path": "{{dependency_spec_path}}",
-      "artifact": "dependency_spec"
+      "artifact": "dependency_spec",
+      "optional": true
     },
     {
       "type": "generate",
-      "prompt": "You are an expert developer. Based on the following dependency specification, generate configuration files for a {{language|default:'javascript'}} project.\n\nDependency Specification:\n{{dependency_spec}}\n\nGenerate the necessary configuration files for this project, including package.json, and any language-specific configuration files (e.g., tsconfig.json for TypeScript, vite.config.js for Vite, etc.).\n\nEnsure you follow these best practices for dependency management:\n<DEPENDENCY_BEST_PRACTICES>\n{{dependency_best_practices}}\n</DEPENDENCY_BEST_PRACTICES>\n\nGenerate all appropriate configuration files in the output directory: {{output_path|default:'.'}}/\n",
+      "prompt": "You are an expert developer. Generate configuration files for a {{language|default:'javascript'}} project.\n\n{% if dependency_spec %}Dependency Specification:\n{{dependency_spec}}\n{% else %}You should create a standard setup for a modern {{language|default:'javascript'}} project with typical dependencies for a component-based application.{% endif %}\n\nGenerate the necessary configuration files for this project, including package.json, and any language-specific configuration files (e.g., tsconfig.json for TypeScript, vite.config.js for Vite, etc.).\n\nIMPORTANT: If this is a React project (TypeScript or JavaScript), make sure to include React and React DOM as dependencies in package.json, not just dev dependencies. Required dependencies for a React project must include:\n- react\n- react-dom\n- For TypeScript projects, also include @types/react and @types/react-dom\n\nEnsure you follow these best practices for dependency management:\n<DEPENDENCY_BEST_PRACTICES>\n{{dependency_best_practices}}\n</DEPENDENCY_BEST_PRACTICES>\n\nGenerate all appropriate configuration files in the output directory: {{output_path|default:'.'}}/\n",
       "model": "{{model|default:'azure:o3-mini'}}",
       "artifact": "generated_config"
     },

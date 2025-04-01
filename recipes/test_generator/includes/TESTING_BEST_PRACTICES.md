@@ -85,37 +85,190 @@ module.exports = {
 
 ### Python
 
-#### Unit Testing
+#### Python Testing Frameworks
 
-- Use pytest for test framework
-- Use fixtures for test setup
-- Parametrize similar tests
-- Use mocking appropriately with unittest.mock or pytest-mock
+- **pytest**: Modern, feature-rich testing framework (recommended)
+  - Simple syntax for writing tests
+  - Powerful fixture system
+  - Extensive plugin ecosystem
+  - Excellent failure reporting
+- **unittest**: Standard library testing framework
+  - Class-based approach
+  - JUnit style assertions
+  - Built into Python
+- **nose2**: Extended unittest framework (less common now)
+
+#### pytest Best Practices
+
+##### Test Structure and Organization
+
+- Organize tests in a `tests` directory or `test_*.py` files
+- Name test functions with prefix `test_`
+- Group related tests in classes with prefix `Test`
+- Organize test files to mirror your project structure
+- Use meaningful names that describe the behavior being tested
 
 ```python
-# Good example
-@pytest.mark.parametrize("input,expected", [
+# Good example of test organization
+def test_user_creation_succeeds_with_valid_data():
+    # Test logic here
+    
+def test_user_creation_fails_with_invalid_email():
+    # Test logic here
+```
+
+##### Fixtures and Setup
+
+- Use fixtures for common setup and teardown
+- Create modular fixtures that can be composed
+- Use scope appropriately (function, class, module, session)
+- Parameterize fixtures for shared setup with variations
+
+```python
+# Good fixture example
+@pytest.fixture
+def authenticated_client():
+    """Create an authenticated API client for testing."""
+    client = APIClient()
+    user = User.objects.create_user(username="testuser", password="password")
+    client.login(username="testuser", password="password")
+    return client
+
+# Using the fixture
+def test_protected_endpoint(authenticated_client):
+    response = authenticated_client.get("/api/protected/")
+    assert response.status_code == 200
+```
+
+##### Test Parameterization
+
+- Use `@pytest.mark.parametrize` for data-driven tests
+- Group related test cases together
+- Provide descriptive ids for parameters
+- Consider using custom data classes for complex inputs
+
+```python
+# Parameterized test example
+@pytest.mark.parametrize("email,expected", [
     ("valid@email.com", True),
     ("invalid-email", False),
-    ("", False)
-])
-def test_email_validation(input, expected):
+    ("", False),
+    ("very.long.email+with-tag@example.co.uk", True)
+], ids=["valid", "invalid-format", "empty", "complex"])
+def test_email_validation(email, expected):
     # Arrange
     validator = EmailValidator()
     
     # Act
-    result = validator.is_valid(input)
+    result = validator.is_valid(email)
     
     # Assert
     assert result == expected
 ```
 
-#### Testing Best Practices
+##### Mocking and Patching
 
-- Use pytest.fixtures for shared setup
-- Organize tests in classes for related functionality
-- Use appropriate assertions for better error messages
-- Use context managers for resource cleanup
+- Use `unittest.mock` or `pytest-mock` for mocking
+- Prefer context manager approach with `with patch():`
+- Mock at the lowest level necessary
+- Verify mock calls with `assert_called_with()` and similar methods
+- Use `autospec=True` to ensure interface compliance
+
+```python
+# Good mocking example
+def test_user_notification_on_registration():
+    # Arrange
+    user = User(email="new@example.com")
+    
+    # Act
+    with patch("app.services.email.send_email") as mock_send:
+        user.register()
+    
+    # Assert
+    mock_send.assert_called_once_with(
+        to="new@example.com", 
+        subject="Welcome to our service",
+        template="welcome_email.html"
+    )
+```
+
+##### Assertions and Verification
+
+- Use plain `assert` statements with descriptive messages
+- For complex cases, use pytest's built-in assertion introspection
+- Use pytest plugins for specialized assertions (API, async, etc.)
+- Handle expected exceptions with `pytest.raises`
+
+```python
+# Good assertion examples
+def test_calculation_result():
+    calculator = Calculator()
+    result = calculator.add(2, 3)
+    assert result == 5, f"Expected 2+3=5, got {result}"
+    
+def test_invalid_input_raises_error():
+    validator = InputValidator()
+    with pytest.raises(ValidationError) as excinfo:
+        validator.validate("invalid-input")
+    assert "Invalid format" in str(excinfo.value)
+```
+
+#### Testing Python-Specific Patterns
+
+##### Testing Async Code
+
+- Use `pytest-asyncio` for testing async functions
+- Mark tests with `@pytest.mark.asyncio`
+- Create async fixtures when needed
+- Handle asyncio event loop properly
+
+```python
+# Testing async code
+@pytest.mark.asyncio
+async def test_async_data_fetch():
+    service = DataService()
+    data = await service.fetch_data()
+    assert len(data) > 0
+    assert "key" in data
+```
+
+##### Testing Flask/Django Applications
+
+- Use `pytest-flask` or `pytest-django` for web framework testing
+- Create fixtures for clients, database access, and authentication
+- Test views, models, and services separately
+- Use proper isolation for database tests
+
+##### Type Checking in Tests
+
+- Consider using type annotations in test code
+- Use `mypy` to verify type correctness
+- Test edge cases related to types
+- Verify overloaded function behavior with different types
+
+##### Testing Database Code
+
+- Use test databases or in-memory databases
+- Ensure proper transaction handling and rollbacks
+- Use fixtures to set up and clean test data
+- Consider using factories for test data generation
+
+```python
+# Database test example with cleanup
+@pytest.fixture
+def test_data():
+    # Setup
+    user = User.objects.create(username="testuser")
+    # Provide the data to the test
+    yield user
+    # Cleanup
+    user.delete()
+    
+def test_user_profile(test_data):
+    profile = Profile.objects.create(user=test_data, bio="Test bio")
+    assert profile.user.username == "testuser"
+    assert profile.bio == "Test bio"
+```
 
 ## Component Type-Specific Guidelines
 

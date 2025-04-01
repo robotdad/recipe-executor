@@ -8,7 +8,8 @@
     {
       "type": "read_file",
       "path": "{{library_integration_spec_path}}",
-      "artifact": "library_integration_spec"
+      "artifact": "library_integration_spec",
+      "optional": true
     },
     {
       "type": "read_file",
@@ -18,7 +19,7 @@
     },
     {
       "type": "generate",
-      "prompt": "You are an expert developer creating adapter code to integrate a core component with a third-party library. Based on the provided integration specification and core component, generate the necessary integration code.\n\nLibrary Integration Specification:\n{{library_integration_spec}}\n\n{% if core_component %}<CORE_COMPONENT>\n{{core_component}}\n</CORE_COMPONENT>{% endif %}\n\n<LIBRARY_INTEGRATION_BEST_PRACTICES>\n{{library_integration_best_practices}}\n</LIBRARY_INTEGRATION_BEST_PRACTICES>\n\nCreate the necessary files to integrate the core component with the specified library following the best practices outlined above. Your generated code should include:\n\n1. Adapter components that wrap the core functionality\n2. Library initialization and configuration code\n3. Custom hooks and utilities for library integration\n4. Type definitions for library integration\n5. Example usage demonstrating the integration\n\nGenerate code for the {{language|default:'javascript'}} language and focus on creating a clean, maintainable integration that follows the principles of separation of concerns.\n\nGenerate all necessary files in the output directory: {{output_path|default:'.'}}/\n",
+      "prompt": "You are an expert developer creating adapter code to integrate a core component with a third-party library. Based on the provided integration specification and core component, generate the necessary integration code.\n\n{% if library_integration_spec %}Library Integration Specification:\n{{library_integration_spec}}{% else %}Since no specific library integration specification was provided, use your judgment to create standard adapters for a {{language}} component. Assume this is a UI component that may need integration with common libraries like state management (Redux/Zustand), routing (React Router), or form handling (React Hook Form).{% endif %}\n\n{% if core_component %}<CORE_COMPONENT>\n{{core_component}}\n</CORE_COMPONENT>{% endif %}\n\n<LIBRARY_INTEGRATION_BEST_PRACTICES>\n{{library_integration_best_practices}}\n</LIBRARY_INTEGRATION_BEST_PRACTICES>\n\nCreate the necessary files to integrate the core component with the specified library following the best practices outlined above. Your generated code should include:\n\n1. Adapter components that wrap the core functionality\n2. Library initialization and configuration code\n3. Custom hooks and utilities for library integration\n4. Type definitions for library integration\n5. Example usage demonstrating the integration\n\n{% if language == 'typescript' or language == 'javascript' %}\n# React Integration Guidelines\n- Import from '../../../TodoApp' (correct path from the adapter directory)\n- Name the main adapter component 'TodoAdapter' to match the app name\n- Create a hook called 'useTodo' for data fetching and state management\n- Export all key functions and classes for easy importing\n- Include detailed JSDoc comments to explain the adapter usage\n- Match the types to those used in the core component\n{% endif %}\n\nGenerate code for the {{language|default:'javascript'}} language and focus on creating a clean, maintainable integration that follows the principles of separation of concerns.\n\nGenerate all necessary files in the output directory: {{output_path|default:'.'}}/\n",
       "model": "{{model|default:'azure:o3-mini'}}",
       "artifact": "integration_code"
     },

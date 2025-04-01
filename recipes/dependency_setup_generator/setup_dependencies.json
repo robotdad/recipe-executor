@@ -3,7 +3,8 @@
     {
       "type": "read_file",
       "path": "{{dependency_spec_path}}",
-      "artifact": "dependency_spec"
+      "artifact": "dependency_spec",
+      "optional": true
     },
     {
       "type": "read_file",

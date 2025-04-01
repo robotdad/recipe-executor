@@ -3,7 +3,8 @@
     {
       "type": "read_file",
       "path": "{{library_integration_spec_path}}",
-      "artifact": "library_integration_spec"
+      "artifact": "library_integration_spec",
+      "optional": true
     },
     {
       "type": "read_file",
