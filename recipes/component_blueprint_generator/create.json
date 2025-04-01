@@ -17,19 +17,31 @@
     },
     {
       "type": "execute_recipe",
-      "recipe_path": "recipes/component_blueprint_generator/recipes/create_spec.json"
+      "recipe_path": "recipes/component_blueprint_generator/recipes/create_spec.json",
+      "context_overrides": {
+        "language": "{{language|default:'python'}}"
+      }
     },
     {
       "type": "execute_recipe",
-      "recipe_path": "recipes/component_blueprint_generator/recipes/create_doc.json"
+      "recipe_path": "recipes/component_blueprint_generator/recipes/create_doc.json",
+      "context_overrides": {
+        "language": "{{language|default:'python'}}"
+      }
     },
     {
       "type": "execute_recipe",
-      "recipe_path": "recipes/component_blueprint_generator/recipes/create_recipes.json"
+      "recipe_path": "recipes/component_blueprint_generator/recipes/create_recipes.json",
+      "context_overrides": {
+        "language": "{{language|default:'python'}}"
+      }
     },
     {
       "type": "execute_recipe",
-      "recipe_path": "recipes/component_blueprint_generator/recipes/finalize_blueprint.json"
+      "recipe_path": "recipes/component_blueprint_generator/recipes/finalize_blueprint.json",
+      "context_overrides": {
+        "language": "{{language|default:'python'}}"
+      }
     }
   ]
 }

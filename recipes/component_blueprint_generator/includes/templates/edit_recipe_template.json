@@ -2,7 +2,7 @@
   "steps": [
     {
       "type": "read_file",
-      "path": "{{target_project}}/{{component_id}}.py",
+      "path": "{{target_project}}/{{component_id}}{% if language == 'typescript' or language == 'javascript' %}.ts{% elif language == 'typescript-react' %}.tsx{% else %}.py{% endif %}",
       "artifact": "existing_code",
       "optional": true
     },

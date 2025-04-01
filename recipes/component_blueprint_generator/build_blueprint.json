@@ -40,7 +40,8 @@
         "target_project": "{{target_project|default:''}}",
         "component_path": "{{component_path|default:''}}",
         "output_root": "{{output_root|default:'output'}}",
-        "project_recipe_path": "recipes/{{target_project}}"
+        "project_recipe_path": "recipes/{{target_project}}",
+        "language": "{{language|default:'python'}}"
       }
     }
   ]
