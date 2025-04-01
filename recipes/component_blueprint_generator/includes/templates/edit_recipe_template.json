@@ -33,7 +33,7 @@
       "type": "execute_recipe",
       "recipe_path": "recipes/codebase_generator/generate_code.json",
       "context_overrides": {
-        "model": "{{model|default:'openai:o3-mini'}}",
+        "model": "{{model|default:'azure:o3-mini'}}",
         "output_root": "{{output_root|default:'.'}}",
         "component_id": "{{component_id}}",
         "output_path": "{{target_project}}/{{component_id}}",
