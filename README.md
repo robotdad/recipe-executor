@@ -102,6 +102,15 @@ The project contains:
 
 - **`recipe_executor/`**: Core implementation with modules for execution, context management, and steps
 - **`recipes/`**: Recipe definition files that can be executed
+- **`tools/`**: Blueprint CLI and other utility tools
+- **`docs/`**: Documentation, guides, and diagrams
+
+## Example Applications
+
+The project includes example applications that demonstrate different ways to use Recipe Executor:
+
+- **[Simple Example](recipes/example_simple/)**: A basic workflow that reads a specification and generates a Python module
+- **[Complex Example](recipes/example_complex/)**: A multi-step workflow with multiple specs and sub-recipes
 
 ## Building from Recipes
 
@@ -119,6 +128,20 @@ One of the most interesting aspects of this project is that it can generate its 
    ```
 
 This demonstrates the power of the Recipe Executor for code generation and maintenance tasks.
+
+### Creating New Projects
+
+For a complete guide on creating new projects using the blueprint-based approach:
+
+[Getting Started Guide](docs/getting_started_guide.md)
+
+This guide walks you through:
+- Setting up a project structure
+- Using utility recipes to analyze and structure your project
+- Writing effective specifications
+- Generating blueprints with the blueprint CLI
+- Using the Recipe Executor to generate code
+- Creating your own custom recipes
 
 ## Contributing & Development
 
