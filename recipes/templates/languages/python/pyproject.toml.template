@@ -1,0 +1,48 @@
+[project]
+name = "{{ project_name }}"
+version = "{{ version|default:'0.1.0' }}"
+description = "{{ description }}"
+authors = [{ name = "{{ author_name|default:'Author' }}"{% if author_email %}, email = "{{ author_email }}"{% endif %} }]
+readme = "README.md"
+requires-python = "{{ python_version|default:'>= 3.9' }}"
+dependencies = [
+{% for dep in dependencies %}    "{{ dep.name }}{{ dep.version|default:'' }}",
+{% endfor %}]
+
+{% if extra_dependencies %}[dependency-groups]
+{% for group in extra_dependencies %}{{ group.name }} = [{% for dep in group.dependencies %}"{{ dep.name }}{{ dep.version|default:'' }}"{% if not forloop.last %}, {% endif %}{% endfor %}]
+{% endfor %}{% endif %}
+
+[tool.uv]
+package = true
+
+{% if project_scripts %}[project.scripts]
+{% for script in project_scripts %}{{ script.name }} = "{{ script.entry_point }}"
+{% endfor %}{% endif %}
+
+{% if build_system %}[build-system]
+requires = [{% for req in build_system.requires %}"{{ req }}"{% if not forloop.last %}, {% endif %}{% endfor %}]
+build-backend = "{{ build_system.backend }}"
+{% endif %}
+
+{% if test_settings %}[tool.pytest]
+testpaths = ["tests"]
+{% if test_settings.pytest %}{% for key, value in test_settings.pytest.items %}{{ key }} = {{ value }}
+{% endfor %}{% endif %}{% endif %}
+
+{% if lint_settings %}[tool.ruff]
+line-length = {{ lint_settings.line_length|default:88 }}
+target-version = "{{ lint_settings.target_version|default:'py39' }}"
+{% if lint_settings.select %}select = [{% for rule in lint_settings.select %}"{{ rule }}"{% if not forloop.last %}, {% endif %}{% endfor %}]{% endif %}
+{% if lint_settings.ignore %}ignore = [{% for rule in lint_settings.ignore %}"{{ rule }}"{% if not forloop.last %}, {% endif %}{% endfor %}]{% endif %}
+{% endif %}
+
+{% if type_checking %}[tool.mypy]
+python_version = "{{ type_checking.python_version|default:'3.9' }}"
+{% if type_checking.mypy %}{% for key, value in type_checking.mypy.items %}{{ key }} = {{ value }}
+{% endfor %}{% endif %}{% endif %}
+
+{% if additional_tools %}{% for tool in additional_tools %}[tool.{{ tool.name }}]
+{% for key, value in tool.settings.items %}{{ key }} = {{ value }}
+{% endfor %}
+{% endfor %}{% endif %}

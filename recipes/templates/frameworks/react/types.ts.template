@@ -1,0 +1,52 @@
+/**
+ * Props for the {{ componentName }} component
+ */
+export interface {{ componentName }}Props {
+  {% for prop in props %}/** {{ prop.description }} */
+  {{ prop.name }}{% if prop.optional %}?{% endif %}: {{ prop.type }};
+  {% endfor %}
+}
+
+{% if hasInterfaces %}
+{% for interface in interfaces %}
+/**
+ * {{ interface.description }}
+ */
+export interface {{ interface.name }} {
+  {% for prop in interface.props %}/** {{ prop.description }} */
+  {{ prop.name }}{% if prop.optional %}?{% endif %}: {{ prop.type }};
+  {% endfor %}
+}
+{% endfor %}
+{% endif %}
+
+{% if hasTypes %}
+{% for type in types %}
+/**
+ * {{ type.description }}
+ */
+export type {{ type.name }} = {{ type.definition }};
+{% endfor %}
+{% endif %}
+
+{% if hasEnums %}
+{% for enum in enums %}
+/**
+ * {{ enum.description }}
+ */
+export enum {{ enum.name }} {
+  {% for member in enum.members %}/** {{ member.description }} */
+  {{ member.name }} = {{ member.value }},
+  {% endfor %}
+}
+{% endfor %}
+{% endif %}
+
+{% if hasConstants %}
+{% for constant in constants %}
+/**
+ * {{ constant.description }}
+ */
+export const {{ constant.name }}: {{ constant.type }} = {{ constant.value }};
+{% endfor %}
+{% endif %}

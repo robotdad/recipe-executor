@@ -1,0 +1,109 @@
+#!/usr/bin/env python3
+"""Tests for the {{ module_name }} module."""
+
+{% for import in imports %}{{ import }}
+{% endfor %}
+import pytest
+from {{ module_path }} import {{ class_name }}
+
+{% if fixtures %}
+# Test fixtures
+{% for fixture in fixtures %}
+@pytest.fixture
+def {{ fixture.name }}():
+    """{{ fixture.description }}
+    
+    Returns:
+        {{ fixture.return_type }}: {{ fixture.return_description }}
+    """
+    {{ fixture.implementation }}
+{% endfor %}
+{% endif %}
+
+class Test{{ class_name }}:
+    """Test suite for the {{ class_name }} class."""
+    
+    {% for setup in setup_methods %}
+    def {{ setup.name }}(self):
+        """{{ setup.description }}"""
+        {{ setup.implementation }}
+    
+    {% endfor %}
+    {% for test in tests %}
+    def test_{{ test.name }}(self{% for param in test.params %}, {{ param.name }}{% endfor %}):
+        """{{ test.description }}"""
+        {% if test.arrange %}# Arrange
+        {{ test.arrange }}
+        {% endif %}
+        
+        {% if test.act %}# Act
+        {{ test.act }}
+        {% endif %}
+        
+        {% if test.assert %}# Assert
+        {{ test.assert }}
+        {% endif %}
+    
+    {% endfor %}
+    {% if parametrized_tests %}
+    {% for test in parametrized_tests %}
+    @pytest.mark.parametrize(
+        "{{ test.param_names }}",
+        [
+            {{ test.param_values }}
+        ]
+    )
+    def test_{{ test.name }}(self, {{ test.param_names }}):
+        """{{ test.description }}"""
+        {% if test.arrange %}# Arrange
+        {{ test.arrange }}
+        {% endif %}
+        
+        {% if test.act %}# Act
+        {{ test.act }}
+        {% endif %}
+        
+        {% if test.assert %}# Assert
+        {{ test.assert }}
+        {% endif %}
+    
+    {% endfor %}
+    {% endif %}
+    {% if exception_tests %}
+    {% for test in exception_tests %}
+    def test_{{ test.name }}_raises_{{ test.exception|lower }}(self{% for param in test.params %}, {{ param.name }}{% endfor %}):
+        """{{ test.description }}"""
+        {% if test.arrange %}# Arrange
+        {{ test.arrange }}
+        {% endif %}
+        
+        # Act & Assert
+        with pytest.raises({{ test.exception }}):
+            {{ test.action }}
+    
+    {% endfor %}
+    {% endif %}
+    {% if mock_tests %}
+    {% for test in mock_tests %}
+    def test_{{ test.name }}_with_mocks(self{% for param in test.params %}, {{ param.name }}{% endfor %}, mocker):
+        """{{ test.description }}"""
+        # Setup mocks
+        {{ test.mock_setup }}
+        
+        {% if test.arrange %}# Arrange
+        {{ test.arrange }}
+        {% endif %}
+        
+        {% if test.act %}# Act
+        {{ test.act }}
+        {% endif %}
+        
+        {% if test.assert %}# Assert
+        {{ test.assert }}
+        {% endif %}
+        
+        # Verify mocks
+        {{ test.mock_verification }}
+    
+    {% endfor %}
+    {% endif %}

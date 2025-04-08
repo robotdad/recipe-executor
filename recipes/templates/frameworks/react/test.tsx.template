@@ -1,0 +1,60 @@
+import React from 'react';
+import { render, screen{% if hasUserEvents %}, fireEvent{% endif %} } from '@testing-library/react';
+{% if hasUserEvents %}import userEvent from '@testing-library/user-event';{% endif %}
+import { {{ componentName }} } from '../{{ componentFileName|default:componentName }}';
+{% if mockDependencies %}
+// Mock dependencies
+{% for mock in mocks %}jest.mock('{{ mock.path }}', () => ({
+  {{ mock.export }}: jest.fn({{ mock.implementation }}),
+}));
+{% endfor %}{% endif %}
+
+describe('{{ componentName }}', () => {
+  {% for setup in beforeEach %}beforeEach(() => {
+    // {{ setup.description }}
+    {{ setup.code }}
+  });
+  {% endfor %}
+
+  {% for cleanup in afterEach %}afterEach(() => {
+    // {{ cleanup.description }}
+    {{ cleanup.code }}
+  });
+  {% endfor %}
+
+  {% for test in tests %}it('{{ test.description }}', {{ test.async | default: '' }}() => {
+    {% if test.arrange %}// Arrange
+    {{ test.arrange }}
+    {% endif %}
+
+    {% if test.act %}// Act
+    {{ test.act }}
+    {% endif %}
+
+    {% if test.assert %}// Assert
+    {{ test.assert }}
+    {% endif %}
+  });
+  {% endfor %}
+
+  {% if !tests %}it('renders correctly', () => {
+    // Arrange
+    const testId = '{{ componentName|lower }}';
+    
+    // Act
+    render(<{{ componentName }} />);
+    const element = screen.getByTestId(testId);
+    
+    // Assert
+    expect(element).toBeInTheDocument();
+  });
+
+  it('displays the expected content', () => {
+    // Arrange & Act
+    render(<{{ componentName }} />);
+    
+    // Assert
+    // Add specific assertions based on expected component content
+  });
+  {% endif %}
+});

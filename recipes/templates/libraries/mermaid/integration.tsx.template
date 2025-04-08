@@ -1,0 +1,128 @@
+// Mermaid Integration Template for React + TypeScript
+// For use with Mermaid v9.x
+// Dependencies: mermaid
+
+import React, { useEffect, useRef, useState } from 'react';
+import mermaid from 'mermaid';
+
+// Initialize mermaid configuration
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'default',
+  securityLevel: 'loose', // Adjust based on your security requirements
+  fontFamily: 'sans-serif',
+});
+
+// Types
+interface {{ componentName }}Props {
+  chart: string;
+  config?: MermaidConfig;
+  height?: string | number;
+  width?: string | number;
+  className?: string;
+  onRender?: () => void;
+  onError?: (error: Error) => void;
+}
+
+interface MermaidConfig {
+  theme?: 'default' | 'forest' | 'dark' | 'neutral';
+  logLevel?: 'debug' | 'info' | 'warn' | 'error' | 'fatal';
+  securityLevel?: 'strict' | 'loose' | 'antiscript';
+  startOnLoad?: boolean;
+  arrowMarkerAbsolute?: boolean;
+}
+
+export const {{ componentName }}: React.FC<{{ componentName }}Props> = ({
+  chart,
+  config,
+  height = 'auto',
+  width = '100%',
+  className = '',
+  onRender,
+  onError,
+}) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [svg, setSvg] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
+  const [renderAttempt, setRenderAttempt] = useState<number>(0);
+
+  useEffect(() => {
+    // Apply custom config if provided
+    if (config) {
+      mermaid.initialize({
+        ...mermaid.getConfig(),
+        ...config,
+      });
+    }
+  }, [config]);
+
+  useEffect(() => {
+    const renderChart = async () => {
+      if (!containerRef.current) return;
+      
+      try {
+        setError(null);
+        
+        // Clear previous content
+        containerRef.current.innerHTML = '';
+        
+        // Generate SVG
+        const { svg } = await mermaid.render(
+          `mermaid-${Date.now()}`, 
+          chart,
+          containerRef.current
+        );
+        
+        setSvg(svg);
+        onRender?.();
+      } catch (err) {
+        console.error('Mermaid rendering failed:', err);
+        setError((err as Error).message || 'Failed to render diagram');
+        onError?.(err as Error);
+        
+        // Provide fallback display of the source
+        if (containerRef.current) {
+          containerRef.current.innerHTML = `
+            <div class="mermaid-error">
+              <h4>Diagram Error</h4>
+              <pre>${chart}</pre>
+            </div>
+          `;
+        }
+      }
+    };
+
+    renderChart();
+  }, [chart, renderAttempt, onRender, onError]);
+
+  // Function to trigger re-rendering
+  const rerender = () => {
+    setRenderAttempt(prev => prev + 1);
+  };
+
+  const containerStyle: React.CSSProperties = {
+    height,
+    width,
+    overflow: 'auto',
+  };
+
+  return (
+    <div 
+      className={`mermaid-container ${className}`} 
+      style={containerStyle}
+      data-testid="{{ componentName|lower }}-container"
+    >
+      {error && (
+        <div className="mermaid-error-message" data-testid="{{ componentName|lower }}-error">
+          {error}
+          <button onClick={rerender}>Try Again</button>
+        </div>
+      )}
+      <div 
+        ref={containerRef} 
+        className="mermaid" 
+        data-testid="{{ componentName|lower }}-diagram"
+      />
+    </div>
+  );
+};

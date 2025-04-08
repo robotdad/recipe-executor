@@ -1,0 +1,151 @@
+#!/usr/bin/env python3
+"""{{ module_description }}"""
+
+{% for import in imports %}{{ import }}
+{% endfor %}
+
+
+{% for exception in exceptions %}class {{ exception.name }}({{ exception.base|default:'Exception' }}):
+    """{{ exception.description }}"""
+    pass
+
+
+{% endfor %}
+class {{ class_name }}:
+    """{{ class_description }}
+    
+    {% if class_attributes %}Attributes:
+        {% for attr in class_attributes %}{{ attr.name}} ({{ attr.type }}): {{ attr.description }}
+        {% endfor %}{% endif %}
+    """
+    
+    def __init__(self{% for param in init_params %}, {{ param.name }}{% if param.default %} = {{ param.default }}{% endif %}{% endfor %}):
+        """Initialize the {{ class_name }}.
+        
+        {% if init_params %}Args:
+            {% for param in init_params %}{{ param.name }} ({{ param.type }}): {{ param.description }}
+            {% endfor %}{% endif %}
+        """
+        {% for attr in instance_attributes %}self.{{ attr.name }} = {{ attr.value }}
+        {% endfor %}
+    
+    {% for method in methods %}
+    def {{ method.name }}(self{% for param in method.params %}, {{ param.name }}{% if param.default %} = {{ param.default }}{% endif %}{% endfor %}){% if method.return_type %} -> {{ method.return_type }}{% endif %}:
+        """{{ method.description }}
+        
+        {% if method.params %}Args:
+            {% for param in method.params %}{{ param.name }} ({{ param.type }}): {{ param.description }}
+            {% endfor %}{% endif %}
+        {% if method.return_type %}
+        Returns:
+            {{ method.return_type }}: {{ method.return_description }}
+        {% endif %}
+        {% if method.raises %}
+        Raises:
+            {% for exception in method.raises %}{{ exception.type }}: {{ exception.description }}
+            {% endfor %}{% endif %}
+        """
+        {{ method.implementation|default:'raise NotImplementedError("Method not implemented")' }}
+    
+    {% endfor %}
+    {% if properties %}
+    {% for prop in properties %}
+    @property
+    def {{ prop.name }}(self){% if prop.return_type %} -> {{ prop.return_type }}{% endif %}:
+        """{{ prop.description }}
+        
+        {% if prop.return_type %}Returns:
+            {{ prop.return_type }}: {{ prop.return_description }}
+        {% endif %}
+        """
+        {{ prop.getter_implementation|default:'raise NotImplementedError("Property getter not implemented")' }}
+    
+    {% if prop.setter %}
+    @{{ prop.name }}.setter
+    def {{ prop.name }}(self, value{% if prop.value_type %}: {{ prop.value_type }}{% endif %}):
+        """Set the {{ prop.name }}.
+        
+        Args:
+            value ({{ prop.value_type }}): {{ prop.setter_description|default:'The value to set' }}
+        """
+        {{ prop.setter_implementation|default:'raise NotImplementedError("Property setter not implemented")' }}
+    {% endif %}
+    
+    {% endfor %}
+    {% endif %}
+    {% if classmethod_methods %}
+    {% for method in classmethod_methods %}
+    @classmethod
+    def {{ method.name }}(cls{% for param in method.params %}, {{ param.name }}{% if param.default %} = {{ param.default }}{% endif %}{% endfor %}){% if method.return_type %} -> {{ method.return_type }}{% endif %}:
+        """{{ method.description }}
+        
+        {% if method.params %}Args:
+            {% for param in method.params %}{{ param.name }} ({{ param.type }}): {{ param.description }}
+            {% endfor %}{% endif %}
+        {% if method.return_type %}
+        Returns:
+            {{ method.return_type }}: {{ method.return_description }}
+        {% endif %}
+        """
+        {{ method.implementation|default:'raise NotImplementedError("Method not implemented")' }}
+    
+    {% endfor %}
+    {% endif %}
+    {% if staticmethod_methods %}
+    {% for method in staticmethod_methods %}
+    @staticmethod
+    def {{ method.name }}({% for param in method.params %}{{ param.name }}{% if param.default %} = {{ param.default }}{% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}){% if method.return_type %} -> {{ method.return_type }}{% endif %}:
+        """{{ method.description }}
+        
+        {% if method.params %}Args:
+            {% for param in method.params %}{{ param.name }} ({{ param.type }}): {{ param.description }}
+            {% endfor %}{% endif %}
+        {% if method.return_type %}
+        Returns:
+            {{ method.return_type }}: {{ method.return_description }}
+        {% endif %}
+        """
+        {{ method.implementation|default:'raise NotImplementedError("Method not implemented")' }}
+    
+    {% endfor %}
+    {% endif %}
+    def __str__(self) -> str:
+        """Return a string representation of the {{ class_name }}.
+        
+        Returns:
+            str: String representation
+        """
+        {% if str_implementation %}{{ str_implementation }}{% else %}return f"{{ class_name }}({% for attr in instance_attributes %}{{ attr.name }}={self.{{ attr.name }}}{% if not forloop.last %}, {% endif %}{% endfor %})"{% endif %}
+    
+    {% if repr_implementation %}
+    def __repr__(self) -> str:
+        """Return a string representation for developers.
+        
+        Returns:
+            str: Developer string representation
+        """
+        {{ repr_implementation }}
+    {% endif %}
+    
+    {% if additional_methods %}
+    {% for method in additional_methods %}
+    def {{ method.name }}(self{% for param in method.params %}, {{ param.name }}{% if param.default %} = {{ param.default }}{% endif %}{% endfor %}){% if method.return_type %} -> {{ method.return_type }}{% endif %}:
+        """{{ method.description }}
+        
+        {% if method.params %}Args:
+            {% for param in method.params %}{{ param.name }} ({{ param.type }}): {{ param.description }}
+            {% endfor %}{% endif %}
+        {% if method.return_type %}
+        Returns:
+            {{ method.return_type }}: {{ method.return_description }}
+        {% endif %}
+        """
+        {{ method.implementation|default:'raise NotImplementedError("Method not implemented")' }}
+    
+    {% endfor %}
+    {% endif %}
+
+{% if main_block %}
+if __name__ == "__main__":
+    {{ main_block }}
+{% endif %}

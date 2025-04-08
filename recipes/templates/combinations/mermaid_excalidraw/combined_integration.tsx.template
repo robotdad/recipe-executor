@@ -1,0 +1,256 @@
+// Combined Mermaid + Excalidraw Integration for React + TypeScript
+// Dependencies: mermaid, @excalidraw/excalidraw
+
+import React, { useState, useEffect, useRef } from 'react';
+import mermaid from 'mermaid';
+import { Excalidraw, exportToBlob } from '@excalidraw/excalidraw';
+import type { ExcalidrawElement } from '@excalidraw/excalidraw/types/element/types';
+import type { AppState } from '@excalidraw/excalidraw/types/types';
+
+// Initialize mermaid configuration
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'default',
+  securityLevel: 'loose',
+});
+
+// Types
+export type DiagramType = 'mermaid' | 'excalidraw';
+
+interface {{ componentName }}Props {
+  initialDiagramType?: DiagramType;
+  initialMermaidContent?: string;
+  initialExcalidrawElements?: readonly ExcalidrawElement[];
+  initialExcalidrawState?: Partial<AppState>;
+  height?: string | number;
+  width?: string | number;
+  readOnly?: boolean;
+  onChange?: (type: DiagramType, content: any) => void;
+  onError?: (error: Error) => void;
+}
+
+export const {{ componentName }}: React.FC<{{ componentName }}Props> = ({
+  initialDiagramType = 'mermaid',
+  initialMermaidContent = 'graph TD\nA[Start] --> B[End]',
+  initialExcalidrawElements = [],
+  initialExcalidrawState = {},
+  height = '500px',
+  width = '100%',
+  readOnly = false,
+  onChange,
+  onError,
+}) => {
+  // State
+  const [diagramType, setDiagramType] = useState<DiagramType>(initialDiagramType);
+  const [mermaidContent, setMermaidContent] = useState<string>(initialMermaidContent);
+  const [excalidrawElements, setExcalidrawElements] = useState<readonly ExcalidrawElement[]>(initialExcalidrawElements);
+  const [excalidrawState, setExcalidrawState] = useState<Partial<AppState>>(initialExcalidrawState);
+  const [error, setError] = useState<string | null>(null);
+  const [exportedImage, setExportedImage] = useState<string | null>(null);
+  
+  // Refs
+  const mermaidContainerRef = useRef<HTMLDivElement>(null);
+  const mermaidEditorRef = useRef<HTMLTextAreaElement>(null);
+  
+  // Effects
+  useEffect(() => {
+    if (diagramType === 'mermaid' && mermaidContainerRef.current) {
+      renderMermaid();
+    }
+  }, [diagramType, mermaidContent]);
+  
+  // Render Mermaid diagram
+  const renderMermaid = async () => {
+    if (!mermaidContainerRef.current) return;
+    
+    try {
+      setError(null);
+      mermaidContainerRef.current.innerHTML = '';
+      
+      const { svg } = await mermaid.render(
+        `mermaid-${Date.now()}`,
+        mermaidContent,
+        mermaidContainerRef.current
+      );
+      
+      onChange?.(diagramType, mermaidContent);
+    } catch (err) {
+      setError(`Mermaid rendering error: ${(err as Error).message}`);
+      onError?.(err as Error);
+      
+      if (mermaidContainerRef.current) {
+        mermaidContainerRef.current.innerHTML = `
+          <div class="diagram-error">
+            <h4>Diagram Error</h4>
+            <pre>${mermaidContent}</pre>
+          </div>
+        `;
+      }
+    }
+  };
+  
+  // Handle Mermaid content change
+  const handleMermaidChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setMermaidContent(e.target.value);
+  };
+  
+  // Handle Excalidraw change
+  const handleExcalidrawChange = (
+    elements: readonly ExcalidrawElement[],
+    state: Partial<AppState>
+  ) => {
+    setExcalidrawElements(elements);
+    setExcalidrawState(state);
+    onChange?.(diagramType, { elements, state });
+  };
+  
+  // Handle diagram type change
+  const handleDiagramTypeChange = (type: DiagramType) => {
+    setDiagramType(type);
+    setError(null);
+  };
+  
+  // Export current diagram
+  const exportDiagram = async () => {
+    try {
+      if (diagramType === 'mermaid' && mermaidContainerRef.current) {
+        const svg = mermaidContainerRef.current.querySelector('svg');
+        if (svg) {
+          const svgData = new XMLSerializer().serializeToString(svg);
+          const blob = new Blob([svgData], { type: 'image/svg+xml' });
+          setExportedImage(URL.createObjectURL(blob));
+        }
+      } else if (diagramType === 'excalidraw') {
+        const blob = await exportToBlob({
+          elements: excalidrawElements,
+          appState: { ...excalidrawState, exportWithDarkMode: false },
+          mimeType: 'image/png',
+        });
+        setExportedImage(URL.createObjectURL(blob));
+      }
+    } catch (err) {
+      setError(`Export error: ${(err as Error).message}`);
+      onError?.(err as Error);
+    }
+  };
+  
+  const containerStyle: React.CSSProperties = {
+    height,
+    width,
+    display: 'flex',
+    flexDirection: 'column',
+  };
+  
+  return (
+    <div 
+      className="diagram-editor"
+      style={containerStyle}
+      data-testid="{{ componentName|lower }}"
+    >
+      <div className="diagram-controls">
+        <div className="diagram-type-selector">
+          <button
+            onClick={() => handleDiagramTypeChange('mermaid')}
+            className={diagramType === 'mermaid' ? 'active' : ''}
+            data-testid="{{ componentName|lower }}-mermaid-button"
+          >
+            Mermaid
+          </button>
+          <button
+            onClick={() => handleDiagramTypeChange('excalidraw')}
+            className={diagramType === 'excalidraw' ? 'active' : ''}
+            data-testid="{{ componentName|lower }}-excalidraw-button"
+          >
+            Excalidraw
+          </button>
+          <button onClick={exportDiagram} data-testid="{{ componentName|lower }}-export-button">
+            Export
+          </button>
+        </div>
+        
+        {error && (
+          <div className="error-message" data-testid="{{ componentName|lower }}-error">
+            {error}
+          </div>
+        )}
+      </div>
+      
+      <div className="diagram-content" style={{ flex: 1, position: 'relative' }}>
+        {diagramType === 'mermaid' ? (
+          <div className="mermaid-editor">
+            {!readOnly && (
+              <textarea
+                ref={mermaidEditorRef}
+                value={mermaidContent}
+                onChange={handleMermaidChange}
+                style={{ 
+                  width: '100%', 
+                  height: '200px',
+                  resize: 'vertical',
+                  fontFamily: 'monospace',
+                }}
+                placeholder="Enter Mermaid diagram code here..."
+                data-testid="{{ componentName|lower }}-mermaid-editor"
+                disabled={readOnly}
+              />
+            )}
+            <div 
+              ref={mermaidContainerRef}
+              className="mermaid-container"
+              data-testid="{{ componentName|lower }}-mermaid-container"
+              style={{ marginTop: '10px' }}
+            />
+          </div>
+        ) : (
+          <div 
+            className="excalidraw-editor" 
+            style={{ height: '100%', width: '100%' }}
+            data-testid="{{ componentName|lower }}-excalidraw-container"
+          >
+            <Excalidraw
+              initialData={{
+                elements: excalidrawElements,
+                appState: { 
+                  ...excalidrawState,
+                  viewBackgroundColor: '#f5f5f5',
+                  isLoading: false,
+                },
+              }}
+              onChange={handleExcalidrawChange}
+              viewModeEnabled={readOnly}
+            />
+          </div>
+        )}
+      </div>
+      
+      {exportedImage && (
+        <div className="export-preview">
+          <h4>Exported Image</h4>
+          <img 
+            src={exportedImage} 
+            alt="Exported diagram" 
+            style={{ maxWidth: '100%', maxHeight: '300px' }}
+            data-testid="{{ componentName|lower }}-exported-image"
+          />
+          <button 
+            onClick={() => {
+              const a = document.createElement('a');
+              a.href = exportedImage;
+              a.download = `diagram-${Date.now()}.${diagramType === 'mermaid' ? 'svg' : 'png'}`;
+              a.click();
+            }}
+            data-testid="{{ componentName|lower }}-download-button"
+          >
+            Download
+          </button>
+          <button 
+            onClick={() => setExportedImage(null)}
+            data-testid="{{ componentName|lower }}-close-preview-button"
+          >
+            Close
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};

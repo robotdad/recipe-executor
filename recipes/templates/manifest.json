@@ -1,0 +1,138 @@
+{
+  "version": "1.0.0",
+  "libraries": [
+    {
+      "name": "milkdown",
+      "display_name": "Milkdown",
+      "description": "WYSIWYG Markdown editor framework",
+      "version_range": "^6.0.0",
+      "dependencies": ["@milkdown/core", "@milkdown/react", "@milkdown/preset-commonmark"],
+      "frameworks": ["react"],
+      "languages": ["typescript", "javascript"],
+      "template_path": "templates/libraries/milkdown",
+      "files": [
+        "integration.tsx.template",
+        "dependencies.json",
+        "example.tsx"
+      ]
+    },
+    {
+      "name": "mermaid",
+      "display_name": "Mermaid",
+      "description": "Diagram rendering library",
+      "version_range": "^9.0.0",
+      "dependencies": ["mermaid"],
+      "frameworks": ["react", "angular", "vue"],
+      "languages": ["typescript", "javascript"],
+      "template_path": "templates/libraries/mermaid",
+      "files": [
+        "integration.tsx.template",
+        "dependencies.json",
+        "example.tsx"
+      ]
+    },
+    {
+      "name": "excalidraw",
+      "display_name": "Excalidraw",
+      "description": "Virtual whiteboard and drawing library",
+      "version_range": "^0.12.0",
+      "dependencies": ["@excalidraw/excalidraw"],
+      "frameworks": ["react"],
+      "languages": ["typescript", "javascript"],
+      "template_path": "templates/libraries/excalidraw",
+      "files": [
+        "integration.tsx.template",
+        "dependencies.json",
+        "example.tsx"
+      ]
+    },
+    {
+      "name": "shiki",
+      "display_name": "Shiki",
+      "description": "Syntax highlighting library",
+      "version_range": "^0.10.0",
+      "dependencies": ["shiki"],
+      "frameworks": ["react", "angular", "vue"],
+      "languages": ["typescript", "javascript"],
+      "template_path": "templates/libraries/shiki",
+      "files": [
+        "integration.tsx.template",
+        "dependencies.json",
+        "example.tsx"
+      ]
+    }
+  ],
+  "frameworks": [
+    {
+      "name": "react",
+      "display_name": "React",
+      "description": "React framework",
+      "version_range": "^18.0.0",
+      "languages": ["typescript", "javascript"],
+      "template_path": "templates/frameworks/react",
+      "files": [
+        "component.tsx.template",
+        "test.tsx.template",
+        "types.ts.template"
+      ]
+    },
+    {
+      "name": "angular",
+      "display_name": "Angular",
+      "description": "Angular framework",
+      "version_range": "^14.0.0",
+      "languages": ["typescript"],
+      "template_path": "templates/frameworks/angular",
+      "files": [
+        "component.ts.template",
+        "module.ts.template",
+        "test.spec.ts.template"
+      ]
+    },
+    {
+      "name": "vue",
+      "display_name": "Vue",
+      "description": "Vue framework",
+      "version_range": "^3.0.0",
+      "languages": ["typescript", "javascript"],
+      "template_path": "templates/frameworks/vue",
+      "files": [
+        "component.vue.template",
+        "test.spec.ts.template"
+      ]
+    }
+  ],
+  "languages": [
+    {
+      "name": "python",
+      "display_name": "Python",
+      "description": "Python language templates",
+      "version_range": ">=3.9",
+      "template_path": "templates/languages/python",
+      "files": [
+        "class.py.template",
+        "test_class.py.template",
+        "pyproject.toml.template"
+      ]
+    },
+    {
+      "name": "typescript",
+      "display_name": "TypeScript",
+      "description": "TypeScript language templates",
+      "version_range": ">=4.0.0",
+      "template_path": "templates/languages/typescript",
+      "files": []
+    }
+  ],
+  "multi_library_combinations": [
+    {
+      "name": "mermaid_excalidraw",
+      "display_name": "Mermaid + Excalidraw",
+      "description": "Diagram rendering with both Mermaid and Excalidraw",
+      "libraries": ["mermaid", "excalidraw"],
+      "frameworks": ["react"],
+      "languages": ["typescript"],
+      "template_path": "templates/combinations/mermaid_excalidraw"
+    }
+  ]
+}

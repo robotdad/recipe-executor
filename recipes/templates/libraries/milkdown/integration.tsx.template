@@ -1,0 +1,108 @@
+// Milkdown Integration Template for React + TypeScript
+// For use with Milkdown v6.x
+// Dependencies: @milkdown/core, @milkdown/react, @milkdown/preset-commonmark
+
+import React, { useEffect, useRef, useState } from 'react';
+import { Editor, rootCtx, defaultValueCtx, editorViewCtx } from '@milkdown/core';
+import { ReactEditor, useEditor } from '@milkdown/react';
+import { commonmark } from '@milkdown/preset-commonmark';
+import { nord } from '@milkdown/theme-nord';
+import { history } from '@milkdown/plugin-history';
+import { listener, listenerCtx } from '@milkdown/plugin-listener';
+import { tooltip } from '@milkdown/plugin-tooltip';
+import { gfm } from '@milkdown/preset-gfm';
+import { math } from '@milkdown/plugin-math';
+
+// Types
+interface {{ componentName }}Props {
+  initialValue: string;
+  onChange?: (value: string) => void;
+  readOnly?: boolean;
+  height?: string | number;
+  width?: string | number;
+  theme?: string;
+}
+
+export const {{ componentName }}: React.FC<{{ componentName }}Props> = ({
+  initialValue = '',
+  onChange,
+  readOnly = false,
+  height = '400px',
+  width = '100%',
+  theme = 'light',
+}) => {
+  const editorRef = useRef<HTMLDivElement>(null);
+  const [content, setContent] = useState(initialValue);
+  const [editorReady, setEditorReady] = useState(false);
+
+  const { editor, loading, getInstance } = useEditor((root) => {
+    // Initialize editor
+    return Editor.make()
+      .config((ctx) => {
+        // Set root element
+        ctx.set(rootCtx, root);
+        
+        // Set default content
+        ctx.set(defaultValueCtx, initialValue);
+        
+        // Set up listener for content changes
+        ctx.get(listenerCtx)?.markdownUpdated((ctx, markdown, prevMarkdown) => {
+          setContent(markdown);
+          onChange?.(markdown);
+        });
+      })
+      .use(listener)
+      .use(commonmark)
+      .use(gfm)
+      .use(math)
+      .use(tooltip)
+      .use(nord)
+      .use(history);
+  });
+
+  // Handle read-only mode changes
+  useEffect(() => {
+    if (!loading && editor) {
+      const editorView = getInstance()?.ctx.get(editorViewCtx);
+      if (editorView) {
+        editorView.setProps({
+          editable: () => !readOnly,
+        });
+      }
+      setEditorReady(true);
+    }
+  }, [loading, editor, readOnly, getInstance]);
+
+  // Apply custom styles
+  const editorStyle = {
+    height,
+    width,
+    overflow: 'auto',
+    border: '1px solid #ddd',
+    borderRadius: '4px',
+    padding: '1rem',
+  };
+
+  return (
+    <div data-testid="{{ componentName|lower }}-container">
+      <div 
+        ref={editorRef}
+        className={`milkdown-editor milkdown-theme-${theme}`}
+        style={editorStyle}
+        data-testid="{{ componentName|lower }}-editor"
+      >
+        {editor}
+      </div>
+      
+      {/* This is a debug view - remove in production */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="debug-view" style={{ marginTop: '1rem' }}>
+          <details>
+            <summary>Markdown Content</summary>
+            <pre data-testid="{{ componentName|lower }}-content">{content}</pre>
+          </details>
+        </div>
+      )}
+    </div>
+  );
+};
